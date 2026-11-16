@@ -1,0 +1,7 @@
+#!/usr/bin/env bpftrace
+// Day 2: Kernel-level filter alerting on /etc/passwd and /etc/hostname access
+tracepoint:syscalls:sys_enter_openat
+/str(args.filename) == "/etc/passwd" || str(args.filename) == "/etc/hostname"/
+{
+    printf("[ALERT] PID %d (%s) accessed %s\n", pid, comm, str(args.filename));
+}

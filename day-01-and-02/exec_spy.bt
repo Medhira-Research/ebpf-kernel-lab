@@ -1,0 +1,6 @@
+#!/usr/bin/env bpftrace
+// Day 1: Trace every new process execution via sys_enter_execve
+tracepoint:syscalls:sys_enter_execve
+{
+    printf("%s executed a command\n", comm);
+}
