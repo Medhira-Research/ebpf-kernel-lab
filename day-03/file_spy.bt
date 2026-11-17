@@ -1,0 +1,29 @@
+#!/usr/bin/env bpftrace
+
+BEGIN
+{
+    printf("=== Kernel File Spy Active (Press Ctrl+C for Report) ===\n");
+}
+
+tracepoint:syscalls:sys_enter_openat
+{
+    @opens[comm] = count();
+}
+
+tracepoint:syscalls:sys_exit_openat
+/args->ret < 0/
+{
+    @failed[comm] = count();
+}
+
+END
+{
+    printf("\n=== Top 10 Total File-Opening Processes ===\n");
+    print(@opens, 10);
+
+    printf("\n=== Top 10 Processes With Failed File Opens ===\n");
+    print(@failed, 10);
+
+    clear(@opens);
+    clear(@failed);
+}
