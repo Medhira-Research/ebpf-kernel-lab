@@ -14,3 +14,8 @@ Hands-on journey learning Linux kernel internals, eBPF, and runtime security on 
 ### Day 3: In-Kernel Hash Maps & Failed Syscall Aggregation
 - **Probe built:** `day-03/file_spy.bt` — Uses two in-kernel eBPF hash maps (`@opens[comm]` on `sys_enter_openat` and `@failed[comm]` filtered by `args->ret < 0` on `sys_exit_openat`) to aggregate top file-opening and error-generating processes without user-space print overhead.
 - **Key Takeaway:** Aggregating telemetry in kernel maps (`count()`) eliminates per-event user-space context switches and scales cleanly to thousands of syscalls per second.
+
+### Side Quest: Kernel Page-Fault Interception (`SIGSEGV`) & GDB Register Recovery
+- **Files built:** `side-quest-pagefault/fault.c` & `side-quest-pagefault/segfault_kstack.bt`
+- **What it does:** Triggers an illegal memory write to `0xdeadbeef`, captures the kernel's `SIGSEGV` delivery along with live `ustack` and `kstack` traces via eBPF (`signal_generate`), and recovers the process mid-crash in `gdb` by allocating heap memory (`malloc(4)`) and patching the `$rax` CPU register.
+- **Key Takeaway:** Hardware MMU page faults trap directly into kernel fault handlers (`exc_page_fault`), which can be traced with zero overhead via eBPF tracepoints before signals reach user space.

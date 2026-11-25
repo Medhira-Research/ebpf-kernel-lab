@@ -1,0 +1,13 @@
+#!/usr/bin/env bpftrace
+
+BEGIN
+{
+    printf("=== Listening for Kernel SIGSEGV Page Faults (Ctrl+C to stop) ===\n");
+}
+
+tracepoint:signal:signal_generate
+/args->sig == 11/
+{
+    printf("\n=== KERNEL PAGE FAULT INTERCEPTED: %s (PID %d) ===\n", comm, pid);
+    printf("--- User Stack ---%s\n--- Kernel Stack ---%s\n", ustack, kstack);
+}
